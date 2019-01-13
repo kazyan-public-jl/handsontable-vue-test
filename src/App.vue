@@ -3,6 +3,7 @@
     <h2 class="title">Welcome to Vue world</h2>
     <router-link to="/">Top</router-link>
     <router-link to="/about">About</router-link>
+    <router-link to="/table">Table</router-link>
     <p>RouterView↓↓↓</p>
     <router-view></router-view>
   </div>

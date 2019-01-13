@@ -1,15 +1,15 @@
-# workbase構築
+# handsontable-vue test
 
 ## 概要
 
-Vue.js+Webpack+Babelな環境があり、ローカルのURLながら画面が表示される状態を用意できる
+handsontable-vue を理解するためのテストページ
 
 ```
 # リポジトリ取得
-git clone https://github.com/kazyan-public-jl/workbase.git
+git clone https://github.com/kazyan-public-jl/handsontable-vue-test.git
 
 # リポジトリに移動
-cd workbase
+cd handsontable-vue-test
 
 # 必要モジュールのインストール
 yarn
@@ -27,109 +27,75 @@ localhost:8080
 127.0.0.1:8080
 ```
 
-以上。
-
 
 ## 目的
 
-- フロントエンドとして作業する際、作業環境の構築から行なっていると時間が足りないことが多いため、あらかじめ雛形を用意しておくことで、開発速度をあげたい。
-- ひとまず画面が表示できるところまでの環境が揃えば、あとはどうにかできる。
+- handsontable-vue を色々試して、使えるようになること
+- 使い方がいつでも参照できるようにすること
 
 ## Goal
 
-以下の環境が構築できること。
+以下の項目が達成できること。
 
-- ES6環境
-    - 最新のJS。古いブラウザだと動かないことがある
-- ESLint
-    - 文法チェック
-- Prittier
-    - コードフォーマッターと呼ばれるコードを自動であるべき形式に直してくれるツール
-- Babel
-    - 古いブラウザでも表示できるようにES6を変換してくれる
-- Webpack
-    - 各リソースやアセットなどを一つのファイルにバンドル（まとめる）&コンパイルしてくれる便利ツール
-- Vue.js
-    - javascript上で動くProgressive Javascript Frameworkでjsフレームワークの一種。最近流行り。
-- Vuex
-    - ページやオブジェクトの「状態」を管理する仕組み。一つの状態によって複数の部品が作用しあったりするデータを管理させる。
-- Vue-Router
-    - Vueで作られたリソースに対してURLでアクセスできるようルーティング機能を提供するVue.js公式のエコシステム。
+1. 初期値と変更されていたら色を変える
+1. primary key の行は「重複しない」
+1. primary key の行は「空を入力できない」
+1. 行が追加されたら、idは自動加算して登録される
+1. カラム名に補足説明をつける
+1. カラムに入力できる型を限定する。外れたら通知する。
+1. カラムに入力できる値リストを指定できる。
+
 
 ## 参考
 
-参考: [モダンフロントエンド開発環境からVue.js環境までひと通り作ってみた](https://qiita.com/isihigameKoudai/items/520c1cb6540e0641a00c)
+- [npm @handsontable/vue](https://www.npmjs.com/package/@handsontable/vue)
 
-## 環境構築
+## handsontableのセットアップ
 
-概ね参考ページ通りに進めた。
+### handsontable-vueのインストール
 
-1. 作業ディレクトリ作成
-1. gitとyarn(npmでもOK)の初期化
-1. gitignoreとeditorconfigの追加
-1. ES6とESLintとPrettier
-1. babelの設定
-1. webpackの設定
-1. パッケージの準備
-1. 起動できたらしい。
-1. ディレクトリの準備
-1. 各ファイルの準備
-    - /dest/index.html
-    - /src/App.vue
-    - /src/index.js
-    - /store/index.js
-    - /route/index.js
-    - /src/pages/top.vue
-    - /src/pages/about.vue
-
-
-最後に `yarn start` で webpack-dev-server を起動すれば、URLからwebページが表示される。
 ```
-$ yarn start
-
-yarn run v1.12.3
-$ webpack-dev-server --config ./webpack.config.js --env.production --host 0.0.0.0
-ℹ ｢wds｣: Project is running at http://0.0.0.0:8080/
-ℹ ｢wds｣: webpack output is served from /
-ℹ ｢wds｣: Content not from webpack is served from dest
-ℹ ｢wdm｣: Hash: 215552f85a5521487338
-Version: webpack 4.28.4
-Time: 1786ms
-Built at: 2019-01-12 18:01:03
-    Asset      Size  Chunks             Chunk Names
-bundle.js  1.25 MiB    main  [emitted]  main
-Entrypoint main = bundle.js
-[0] multi (webpack)-dev-server/client?http://0.0.0.0:8080 babel-polyfill ./src/index.js 52 bytes {main} [built]
-(略)
-[./src/index.js] 313 bytes {main} [built]
-    + 368 hidden modules
-ℹ ｢wdm｣: Compiled successfully.
+yarn add handsontable @handsontable/vue
 ```
 
-MacでChromeから見ようとすると、`localhost:8080`ではなく`127.0.0.1:8080`であることに注意。
-```
-#win
-localhost:8080
+### vue component を用意する
 
-#mac
-127.0.0.1:8080
+src/js/components/table/CustomHotTable.vue
+```js
+<template>
+  <hot-table :settings="settings"></hot-table>
+</template>
+ 
+<script>
+  import { HotTable } from '@handsontable/vue';
+ 
+  export default {
+    data: function() {
+      return {
+        settings: {
+          data: [
+            ["", "Ford", "Volvo", "Toyota", "Honda"],
+            ["2016", 10, 11, 12, 13],
+            ["2017", 20, 11, 14, 13],
+            ["2018", 30, 15, 12, 13]
+          ],
+          colHeaders: true,
+          rowHeaders: true,
+        }
+      };
+    },
+    components: {
+      HotTable
+    }
+  }
+</script>
+ 
+<style src="../node_modules/handsontable/dist/handsontable.full.css"></style>
 ```
 
-## 記事に記載されてなかったので対応したこと
+### table ページを追加
 
-1. [vue-loaderが新しすぎるとエラーが出る](https://qiita.com/tosite0345/items/2b153049805190fc5d15)らしいので、一つ手前の@14にした
-```
-yarn add vue-loader@14
-```
-
-2. vue-template-compilerがインストールされてなかったのでエラーがでた
-```
-ERROR in ./src/App.vue
-Module build failed (from ./node_modules/vue-loader/index.js):
-Error: Cannot find module 'vue-template-compiler'
-```
-不足してるモジュールをインストールして解決した
-```
-$ yarn add vue-template-compiler
-```
-
+1. src/js/components/table/table.vue を作成
+2. CustomHotTable.vue を import, htmlに記述
+3. route/index.js に table へのルートを追加
+4. src/App.vue に table への導線を追加
