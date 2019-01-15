@@ -75,15 +75,28 @@ src/js/components/table/CustomHotTable.vue
         settings: {
           data: [
             ["", "Ford", "Volvo", "Toyota", "Honda"],
-            ["2016", 10, 11, 12, 13],
-            ["2017", 20, 11, 14, 13],
-            ["2018", 30, 15, 12, 13]
+            ["2016", 10, 11, 12, 11],
+            ["2017", 20, 11, 15, 13],
+            ["2018", 40, 25, 12, 13],
+            ["2019", 50, 22, 25, 15]
           ],
           colHeaders: true,
           rowHeaders: true,
-        }
+
+        },
+        originData: [
+          ["", "Ford", "Volvo", "Toyota", "Honda"],
+          ["2016", 10, 11, 12, 13],
+          ["2017", 20, 11, 14, 13],
+          ["2018", 30, 15, 12, 13]
+        ],
       };
     },
+    methods: {
+      addRow(rowId, pk){
+        this.$refs.handson
+      }
+    }
     components: {
       HotTable
     }
@@ -99,3 +112,92 @@ src/js/components/table/CustomHotTable.vue
 2. CustomHotTable.vue を import, htmlに記述
 3. route/index.js に table へのルートを追加
 4. src/App.vue に table への導線を追加
+
+### イベント発火タイミングを調査
+
+#### 読み込み時
+
+Vue:created
+
+HT:modifyRow (0-4を6周)
+
+begin
+  HT:modifyCol n
+  HT:modifyRow m
+  HT:modifyCol n
+  HT:cells m n
+end
+
+HT:modifyRow (0-3,0-4を1回ずつ)
+
+HT:modifyCol 0
+HT:modifyRow 0
+HT:modifyCol 0
+HT:cells 0 0
+
+begin m:0-4, n:0
+  HT:modifyCol n
+  HT:modifyRow m
+  HT:modifyCol n
+  HT:cells m n
+  HT:modifyCol n
+  HT:modifyRow m
+  HT:modifyRowData m
+  HT:modifyData m n
+  HT:cells m n
+end
+
+HT:modifyColHeader 0
+HT:modifyCol 0
+HT:modifyColHeader 0
+
+begin m:0-4, n:0
+  HT:modifyCol n
+  HT:modifyRow m
+  HT:modifyCol n
+  HT:cells m n
+  HT:modifyCol n
+  HT:modifyRow m
+  HT:modifyCol n
+  HT:cells m n
+  HT:modifyCol n
+  HT:modifyRow m
+  HT:modifyRowData m
+  HT:modifyData m n
+end
+
+HT:modifyCol 0
+
+begin m:0-4, n:1
+  HT:modifyCol n
+  HT:modifyRow m
+  HT:modifyCol n
+  HT:cells m n
+end
+
+※とにかく modify, cells の発火量が多すぎる
+before/afterRendererはレンダリング時のみっぽい
+
+HT:beforeRender
+  HT:cells
+    HT:beforeRenderer 各セルのHTML描画
+    HT:afterRenderer
+  HT:cells
+HT:afterRender
+
+Vue:mounted
+
+HT:cells
+
+#### セル選択時
+
+HT:afterSelection
+HT:cells
+  1. Header行のセルを実行(何回も行っていた, 4〜5回)
+  2. 選択したセルを実行(1回だけ)
+  3. Header行のセルを実行？(たまにカラム数-1のが混じっている)
+HT:cells
+
+#### 値の変更時
+
+HT:
